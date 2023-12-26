@@ -3,6 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay, loaderDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
+import homeSectionService from '../../services/homeSectionService';
 
 const StyledHeroSection = styled.section`
   ${({ theme }) => theme.mixins.flexCenter};
@@ -49,20 +50,27 @@ const StyledHeroSection = styled.section`
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const [profile, setProfile] = useState({});
 
   useEffect(() => {
     if (prefersReducedMotion) {
       return;
     }
-
     const timeout = setTimeout(() => setIsMounted(true), navDelay);
     return () => clearTimeout(timeout);
   }, []);
 
-  const one = <h1>Hi, my name is</h1>;
-  const two = <h2 className="big-heading">Brittany Chiang.</h2>;
-  const three = <h3 className="big-heading">I build things for the web.</h3>;
-  const four = (
+  useEffect(() => {
+    homeSectionService?.getProfile('vineethpawar')?.then(res => {
+      setProfile(res);
+    });
+  }, []);
+
+  const hi = <h1>Hi, my name is</h1>;
+  const name = <h2 className="big-heading">{profile?.name}</h2>;
+  const bio1 = <h3 className="big-heading">{profile?.bio || ''}</h3>;
+  const bio2 = <h3 className="medium-heading">{profile?.bio || ''}</h3>;
+  const bio3 = (
     <>
       <p>
         I’m a software engineer specializing in building (and occasionally designing) exceptional
@@ -84,8 +92,8 @@ const Hero = () => {
       Check out my course!
     </a>
   );
-
-  const items = [one, two, three, four, five];
+  const bioLength = profile?.bio?.length;
+  const items = [hi, name, bioLength < 25 ? bio1 : bioLength < 35 ? bio2 : bio3, five];
 
   return (
     <StyledHeroSection>
