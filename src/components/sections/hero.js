@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { navDelay, loaderDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
-import homeSectionService from '../../services/homeSectionService';
 import styled from 'styled-components';
+import { myContext } from '../../pages';
 
 const StyledHeroSection = styled.section`
   max-width: 900px;
@@ -157,20 +157,13 @@ const StyledPic = styled.div`
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [profile, setProfile] = useState({});
-
+  const profile = React.useContext(myContext)?.profile;
   useEffect(() => {
     if (prefersReducedMotion) {
       return;
     }
     const timeout = setTimeout(() => setIsMounted(true), navDelay);
     return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    homeSectionService?.getProfile('vineethpawar')?.then(res => {
-      setProfile(res);
-    });
   }, []);
 
   const hi = <h1>Hi, my name is</h1>;
@@ -201,7 +194,7 @@ const Hero = () => {
       ) : (
         <div className="inner">
           <StyledText>
-            <TransitionGroup component={null}>
+            <TransitionGroup>
               {isMounted &&
                 items.map((item, i) => (
                   <CSSTransition key={i} classNames="fadeup" timeout={loaderDelay}>
@@ -211,13 +204,19 @@ const Hero = () => {
             </TransitionGroup>
           </StyledText>
           <StyledPic>
-            <div className="wrapper">
-              <img
-                className="img"
-                src={'https://avatars.githubusercontent.com/u/55575881?v=4'}
-                width={500}
-              />
-            </div>
+            <TransitionGroup>
+              {isMounted && (
+                <CSSTransition classNames="fadeup" timeout={loaderDelay}>
+                  <div className="wrapper" style={{ transitionDelay: '100ms' }}>
+                    <img
+                      className="img"
+                      src={'https://avatars.githubusercontent.com/u/55575881?v=4'}
+                      width={500}
+                    />
+                  </div>
+                </CSSTransition>
+              )}
+            </TransitionGroup>
           </StyledPic>
         </div>
       )}
